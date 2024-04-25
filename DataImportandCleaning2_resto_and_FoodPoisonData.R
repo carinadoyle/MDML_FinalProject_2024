@@ -1,4 +1,3 @@
-
 #Further cleaning after the DataImportandCleaning.R is run: DOH DATA
 #converts the 3 date columns to date format and extracts inspection year 
 resto <- resto %>% mutate(INSPECTION.DATE = as.Date(INSPECTION.DATE, format = "%m/%d/%Y")) %>%
@@ -28,7 +27,7 @@ head(foodpo)
 nrow(foodpo)
 #Limit to only the reports of food poisoning from a restaurant and remove rows with missing zip code info:
 foodpo <- foodpo %>% filter(Location.Type == "Restaurant" | Location.Type =="Restaurant/Bar/Deli/Bakery") %>%
-  filter(nchar(Incident.Zip) == 5) %>% mutate(Incident.Zip = as.factor(Incident.Zip)) %>%
+ filter(nchar(Incident.Zip) == 5) %>% mutate(Incident.Zip = as.factor(Incident.Zip)) %>%
   mutate(Created.Date = as.Date(Created.Date, format = "%m/%d/%Y")) %>%  #Convert Date and year info
   mutate(Created.Year = lubridate::year(Created.Date)) %>% filter(Created.Year >= 2015) #limit to 2015 to present (same as resto data)
 
@@ -38,7 +37,7 @@ foodpo <- foodpo %>% mutate(Descriptor = as.factor(Descriptor)) %>%
   rename(ZIPCODE = Incident.Zip) %>%  #renamed for easier merging later
   group_by(ZIPCODE, Created.Year)%>%
   summarize(totalw = sum(weight)) %>%
-  mutate(Percentage = (totalw / sum(totalw)) * 100) %>%
+  mutate(Percentage = (totalw / sum(totalw)) * 100) %>% #create a "Percentage" metric for % of total complaints made each year from each zip code
   complete(Created.Year = full_seq(2015:2024, 1)) %>% #fill in the missing years for each zipcode
   ungroup()  
 foodpo <- replace(foodpo, is.na(foodpo), 0) #indicate a zero percentage and weight for years a zip was not reported
@@ -48,4 +47,4 @@ foodpo <- foodpo %>% rename(INSPECTION.YEAR = Created.Year) %>% #change year col
   select(-totalw)
 #Join with restaurant data set by zip code and year:
 resto <- left_join(resto, foodpo, by = c('ZIPCODE' = 'ZIPCODE', 'INSPECTION.YEAR' = 'INSPECTION.YEAR'))
-resto <- resto %>%  rename(Foodpo.perZip.perYear = "Percentage")
+resto <- resto %>%rename(Foodpo.perZip.perYear = "Percentage")

@@ -15,8 +15,7 @@ sample <- sample(n/1.20, replace=F)
 train <- resto[sample, ]
 test <- resto[-sample, ]
 
-train <- ovun.sample(ACTION~., data=resto, method = "both",
-                        seed = 0, N = nrow(resto))$data
+train <- ovun.sample(ACTION~., data=resto, method = "both", seed = 0, N = nrow(resto))$data
 table(train$ACTION)
 
 y_train <- as.integer(resto$ACTION) -1

@@ -30,21 +30,21 @@ resto$ACTION <- as.numeric(resto$ACTION)
 
 # this can maybe be deleted, it's for data balancing if we decide to do that
 # string of column names with NAs to replace
-resto <- resto %>% select(-Location.Point1, -BIN, -BBL, -NTA, -PHONE, -CAMIS,
-                          -Latitude, -Longitude, -DBA, -RECORD.DATE, -GRADE.DATE,
-                          -INSPECTION.DATE, -STREET, -BUILDING)
-missing_names <- colnames(resto)[colSums(is.na(resto)) > 0]
+# resto <- resto %>% select(-Location.Point1, -BIN, -BBL, -NTA, -PHONE, -CAMIS,
+#                           -Latitude, -Longitude, -DBA, -RECORD.DATE, -GRADE.DATE,
+#                           -INSPECTION.DATE, -STREET, -BUILDING)
+# missing_names <- colnames(resto)[colSums(is.na(resto)) > 0]
 
-# loop to replace NAs with the mode for each question
-for (i in missing_names){
-  mode <- Mode(na.omit(resto[[i]]))[1]
-  resto[[i]][which(is.na(resto[[i]]))] <- as.numeric(mode)
-}
+# # loop to replace NAs with the mode for each question
+# for (i in missing_names){
+#   mode <- Mode(na.omit(resto[[i]]))[1]
+#   resto[[i]][which(is.na(resto[[i]]))] <- as.numeric(mode)
+# }
 
-index <- 1:ncol(resto)
-resto[ , index] <- lapply(resto[ , index], as.factor)
-str(resto)
-summary(resto)
+# index <- 1:ncol(resto)
+# resto[ , index] <- lapply(resto[ , index], as.factor)
+# str(resto)
+# summary(resto)
 
 #resto$BUILDING <- as.numeric(resto$BUILDING)
 #resto$INSPECTION.DATE <- as.numeric(resto$INSPECTION.DATE)

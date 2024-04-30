@@ -4,7 +4,7 @@ library(ROSE)
 set.seed(0)
 
 # checking dataset balance
-barplot(prop.table(table(resto$ACTION)),
+barplot(prop.table(table(resto$pests)),
         col = rainbow(2),
         ylim = c(0, 0.7),
         main = "Class Distribution")
@@ -15,17 +15,13 @@ sample <- sample(n/1.20, replace=F)
 train <- resto[sample, ]
 test <- resto[-sample, ]
 
-train <- ovun.sample(ACTION~., data=resto, method = "both", seed = 0, N = nrow(resto))$data
-table(train$ACTION)
+# train <- ovun.sample(ACTION~., data=resto, method = "both", seed = 0, N = nrow(resto))$data
+# table(train$ACTION)
 
-y_train <- as.integer(resto$ACTION) -1
-y_test <- as.integer(resto$ACTION) - 1
-X_train <- resto %>% select(-ACTION)
-X_test <- resto %>% select(-ACTION)
+y_train <- as.integer(resto$pests) -1
+y_test <- as.integer(resto$pests) - 1
+X_train <- resto %>% select(-pests)
+X_test <- resto %>% select(-pests)
 
-barplot(prop.table(table(train$ACTION)),
-        col = rainbow(2),
-        ylim = c(0, 0.7),
-        main = "Class Distribution")
-
-
+nrow(train)
+nrow(test)

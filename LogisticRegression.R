@@ -3,12 +3,12 @@ set.seed(0)
 
 # modeling logistic regression
 
-log_model <- glm(ACTION~., data=train, family="binomial")
+log_model <- glm(pests~., data=train, family="binomial")
 summary(log_model)
 
 train_control <- trainControl(method = "cv", number = 10)
 # train the model on training set
-model <- train(ACTION ~ .,data = resto,trControl = train_control,
+model <- train(pests ~ .,data = resto,trControl = train_control,
                   method = "glm",family=binomial())
 model
 

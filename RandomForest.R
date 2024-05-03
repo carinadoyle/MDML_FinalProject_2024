@@ -4,7 +4,7 @@ set.seed(0)
 
 # random forest model
 
-rf_model <- randomForest(ACTION~., train, importance=TRUE, 
+rf_model <- randomForest(pests~., train, importance=TRUE, 
                             ntree=1000, proximity=TRUE, nodesize=10, mtry=10)
 rf_model
 

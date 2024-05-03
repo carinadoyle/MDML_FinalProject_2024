@@ -15,9 +15,6 @@ sample <- sample(n/1.20, replace=F)
 train <- resto[sample, ]
 test <- resto[-sample, ]
 
-# train <- ovun.sample(ACTION~., data=resto, method = "both", seed = 0, N = nrow(resto))$data
-# table(train$ACTION)
-
 y_train <- as.integer(resto$pests) -1
 y_test <- as.integer(resto$pests) - 1
 X_train <- resto %>% select(-pests)
@@ -25,3 +22,5 @@ X_test <- resto %>% select(-pests)
 
 nrow(train)
 nrow(test)
+
+str(resto)

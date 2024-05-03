@@ -3,7 +3,7 @@ set.seed(0)
 
 # modeling logistic regression
 
-log_model <- glm(pests~., data=train, family="binomial")
+log_model <- glm(pests~cuisine, data=train, family="binomial")
 summary(log_model)
 
 train_control <- trainControl(method = "cv", number = 10)

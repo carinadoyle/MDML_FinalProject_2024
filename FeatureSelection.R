@@ -59,4 +59,9 @@ colnames(resto)
 # feature selection tells us to take out street, record.date, score, and foodpo.perzip.peryear
 resto <- resto %>% select(-STREET, -RECORD.DATE, -score, -Foodpo.perZip.perYear)
 
+grep("AVENUE", resto$STREET)
+grep("STREET", resto$STREET)
+
+
+unique(resto$CUISINE.DESCRIPTION)
 

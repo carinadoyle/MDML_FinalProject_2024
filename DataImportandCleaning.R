@@ -10,6 +10,7 @@ library(randomForest) # Random forest classifier
 library(pROC) # AU-ROC curves
 library(ROCR) # AU-ROC curves
 library(DescTools) # mode imputation
+library(cvms) # plot confusion matrices
 
 data <- read.csv("DOHMH_New_York_City_Restaurant_Inspection_Results_20240416.csv")
 resto <- data

@@ -1,4 +1,4 @@
-
+#TEST
 
 #Further cleaning after the DataImportandCleaning.R is run: DOH DATA
 #converts the 3 date columns to date format and extracts inspection year 
@@ -31,7 +31,7 @@ nrow(foodpo)
 foodpo <- foodpo %>% filter(Location.Type == "Restaurant" | Location.Type =="Restaurant/Bar/Deli/Bakery") %>%
   filter(nchar(Incident.Zip) == 5) %>% mutate(Incident.Zip = as.factor(Incident.Zip)) %>%
   mutate(Created.Date = as.Date(Created.Date, format = "%m/%d/%Y")) %>%  #Convert Date and year info
-  mutate(Created.Year = lubridate::year(Created.Date)) %>% filter(Created.Year >= 2015) #limit to 2015 to present (same as resto data)
+  mutate(Created.Year = lubridate::year(Created.Date)) %>% filter(Created.Year >= 2015 & Created.Year <= 2022) #limit to 2015 to 2022
 
 #Add a feature weighting the row by "Descriptor" field:  "1 or 2" cases = 1 and "3 or more" cases = 2
 foodpo <- foodpo %>% mutate(Descriptor = as.factor(Descriptor)) %>% 

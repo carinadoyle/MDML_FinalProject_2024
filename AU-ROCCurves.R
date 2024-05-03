@@ -1,4 +1,3 @@
-
 # listing algorithms used
 models <- c("Logistic Regression", "Naive Bayes", "K-Nearest Neighbors", 
             "Decision Trees", "Random Forest", "XGBoost")

@@ -3,8 +3,6 @@ library(ROSE)
 
 set.seed(0)
 
-resto$score <- as.numeric(resto$score)
-
 # checking dataset balance
 barplot(prop.table(table(resto$pests)),
         col = rainbow(2),
@@ -26,3 +24,5 @@ nrow(train)
 nrow(test)
 
 str(resto)
+
+resto <- resto %>% select(-Community.Board, -Council.District)

@@ -29,7 +29,6 @@ plot_confusion_matrix(as_tibble((confusionMatrix(factor(pred_test), test$pests)$
                       target_col = "Reference", prediction_col = "Prediction", counts_col = "n")
 
 pred_prob_test <- predict(nb_model, newdata=test, type="prob")
-nb_ROCurve <-roc(test$ACTION,as.numeric(pred_prob_test[,1]))
-auc <- c()
+nb_ROCurve <-roc(test$pests,as.numeric(pred_prob_test[,1]))
 auc <- append(auc, auc(nb_ROCurve))
 

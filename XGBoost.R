@@ -9,6 +9,11 @@ set.seed(0)
 X_train <- unfactor(X_train)
 X_test <- unfactor(X_test)
 
+as.matrix(X_train)
+
+sparse_matrix <- sparse.model.matrix(label_y ~ ., data = df)[,-1]
+X_train_dmat = xgb.DMatrix(sparse_matrix, label = df$label)
+
 xgb_train <- xgb.DMatrix(data = as.matrix(X_train), label = y_train)
 xgb_test <- xgb.DMatrix(data = as.matrix(X_test), label = y_test)
 xgb_params <- list(booster = "gbtree",eta = 0.1, max_depth = 4,gamma = 4,subsample=1,

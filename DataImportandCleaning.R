@@ -22,12 +22,12 @@ nrow(resto)
 ### mice imputation?
 # for now I am just removing NAs
 
-# recoding violations, so it is a binary prediction - violation (1) or no violation (0)
-resto$ACTION[resto$ACTION=="Violations were cited in the following area(s)." |
+# recoding violations, so it is a binary prediction - closed (1) or not closed (0)
+resto$ACTION[resto$ACTION=="Establishment re-closed by DOHMH." |
                resto$ACTION=="Establishment Closed by DOHMH. Violations were cited in the following area(s) and those requiring immediate action were addressed."] <- 1
 resto$ACTION[resto$ACTION=="No violations were recorded at the time of this inspection." |
                resto$ACTION=="Establishment re-opened by DOHMH."|
-               resto$ACTION=="Establishment re-closed by DOHMH."] <- 0
+               resto$ACTION=="Violations were cited in the following area(s)."] <- 0
 resto$ACTION <- as.numeric(resto$ACTION)
 
 # this can maybe be deleted, it's for data balancing if we decide to do that

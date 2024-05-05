@@ -24,3 +24,4 @@ nrow(train)
 nrow(test)
 
 str(resto)
+

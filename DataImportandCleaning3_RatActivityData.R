@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 
+=======
+#TEST
+>>>>>>> 4ff8b065ecf0a8c7e20302647b5267587327c226
 #Cleaning/Merging: PEST CONTROL DATA
 data3 <- read.csv("Rodent_Inspection.csv")
 rodent <- data3
@@ -9,7 +13,11 @@ nrow(rodent)
 rodent <- rodent %>% filter(RESULT == "Rat Activity") %>%
   mutate(INSPECTION_DATE = as.Date(INSPECTION_DATE, format = "%m/%d/%Y")) %>%  #Convert Date and year info
   mutate(INSPECTION_YEAR = lubridate::year(INSPECTION_DATE)) %>% 
+<<<<<<< HEAD
   filter(INSPECTION_YEAR >= 2015) %>% #Limit to the other data date range (2015-2024) 
+=======
+  filter(INSPECTION_YEAR >= 2015 & INSPECTION_YEAR <= 2022) %>% #Limit to the other data date range (2015-2022) 
+>>>>>>> 4ff8b065ecf0a8c7e20302647b5267587327c226
   filter(nchar(ZIP_CODE) == 5) %>% mutate(ZIP_CODE = as.factor(ZIP_CODE)) %>%
   rename(ZIPCODE = ZIP_CODE)   #renamed for easier merging later
 
@@ -31,4 +39,8 @@ rodent <- rodent %>% rename(INSPECTION.YEAR = INSPECTION_YEAR) %>%
   select(-n_group)
 #Join with restaurant data set by zip code and year:
 resto <- left_join(resto, rodent, by = c('ZIPCODE' = 'ZIPCODE', 'INSPECTION.YEAR' = 'INSPECTION.YEAR'))
+<<<<<<< HEAD
 resto <- resto %>% rename(RatActivity.perZip.perYear = "Percentage")
+=======
+resto <- resto %>% rename(RatActivity.perZip.perYear = "Percentage")
+>>>>>>> 4ff8b065ecf0a8c7e20302647b5267587327c226

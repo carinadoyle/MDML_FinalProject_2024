@@ -1,4 +1,4 @@
-
+#TEST
 
 #Further cleaning after the DataImportandCleaning.R is run: DOH DATA
 #converts the 3 date columns to date format and extracts inspection year 
@@ -18,8 +18,7 @@ resto <- resto %>% drop_na(INSPECTION.TYPE) #remove rows with no inspection type
 resto <- resto %>% group_by(CAMIS, INSPECTION.DATE) %>% 
   mutate(score = max(SCORE)) %>% ungroup()  #choose the highest score if more than 1 score listed for the same inspection
 
-
-#Do we want to limit "inspection_type" values like we did in HW6?
+length(unique(resto$CAMIS)) 
 
 #Cleaning: FOOD POISONING DATA and extracting a new metric that 
 #scores each source zip code by % of total Food Poisoning reports for that year
@@ -31,7 +30,7 @@ nrow(foodpo)
 foodpo <- foodpo %>% filter(Location.Type == "Restaurant" | Location.Type =="Restaurant/Bar/Deli/Bakery") %>%
   filter(nchar(Incident.Zip) == 5) %>% mutate(Incident.Zip = as.factor(Incident.Zip)) %>%
   mutate(Created.Date = as.Date(Created.Date, format = "%m/%d/%Y")) %>%  #Convert Date and year info
-  mutate(Created.Year = lubridate::year(Created.Date)) %>% filter(Created.Year >= 2015) #limit to 2015 to present (same as resto data)
+  mutate(Created.Year = lubridate::year(Created.Date)) %>% filter(Created.Year >= 2015 & Created.Year <= 2022) #limit to 2015 to 2022
 
 #Add a feature weighting the row by "Descriptor" field:  "1 or 2" cases = 1 and "3 or more" cases = 2
 foodpo <- foodpo %>% mutate(Descriptor = as.factor(Descriptor)) %>% 
@@ -40,7 +39,7 @@ foodpo <- foodpo %>% mutate(Descriptor = as.factor(Descriptor)) %>%
   group_by(ZIPCODE, Created.Year)%>%
   summarize(totalw = sum(weight)) %>%
   mutate(Percentage = (totalw / sum(totalw)) * 100) %>%
-  complete(Created.Year = full_seq(2015:2024, 1)) %>% #fill in the missing years for each zipcode
+  complete(Created.Year = full_seq(2015:2022, 1)) %>% #fill in the missing years for each zipcode
   ungroup()  
 foodpo <- replace(foodpo, is.na(foodpo), 0) #indicate a zero percentage and weight for years a zip was not reported
 

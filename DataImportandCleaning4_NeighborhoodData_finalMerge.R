@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 
+=======
+#TEST
+>>>>>>> 4ff8b065ecf0a8c7e20302647b5267587327c226
 #Additional cleanup for the 2 created features Foodpo.perZip.perYear and RatActivity.perZip.perYear
 #because some zip codes were not reported at all in the food poisoning and rodent datasets, 
 #these fields have some NA values that should be zero:
@@ -24,6 +28,7 @@ resto <- left_join(resto, neibrhd, by = c('NTA' = 'NTA'))
 resto <- resto %>% drop_na(Neighborhood.Name)  #drop any rows that are missing Neighborhood data
 
 #If we want to filter to complete cases only (code below), we will still have almost 100K observations (99747):
+<<<<<<< HEAD
 # resto <- resto %>% filter(complete.cases(.))
 
 # it looks like we only have NAs in grade date, council distrinct, census tract, bin, and location.point1
@@ -114,3 +119,6 @@ resto <- resto %>% filter(INSPECTION.YEAR!=2023 & INSPECTION.YEAR!=2024) %>% sel
 
 str(resto)
 
+=======
+#resto <- resto %>% filter(complete.cases(.))
+>>>>>>> 4ff8b065ecf0a8c7e20302647b5267587327c226

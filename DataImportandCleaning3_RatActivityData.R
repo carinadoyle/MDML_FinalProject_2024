@@ -21,7 +21,7 @@ rodent <- rodent %>% group_by(ZIPCODE, INSPECTION_YEAR) %>% #create a "Percentag
   reframe(n_group = n(), Percentage = n_group/all_observations_byYear * 100) %>% ungroup() 
 
 rodent <- rodent %>% distinct() %>% #keep all unique rows (year/zipcode combos)
-  group_by(ZIPCODE) %>% complete(INSPECTION_YEAR = full_seq(2015:2024, 1)) %>% #fill in all years for each zip that was not reported
+  group_by(ZIPCODE) %>% complete(INSPECTION_YEAR = full_seq(2015:2022, 1)) %>% #fill in all years for each zip that was not reported
   ungroup() 
 
 rodent <- replace(rodent, is.na(rodent), 0) #fill in zero percentage for years/zips that did not report any rat activity

@@ -16,13 +16,13 @@ ggplot(data = df, mapping = aes(x=k_seq, y=te_error))+geom_line(col="red") +
   geom_line()+xlab("k value")+ylab("Testing error")
 
 trControl <- trainControl(method  = "cv", number  = 10)
-fit <- train(pests ~ ., method = "knn", tuneGrid= expand.grid(k = 1:20),
-             trControl= trControl, metric = "Accuracy", data=train_18)
+fit <- train(pests ~ ., method = "knn", tuneGrid= expand.grid(k = 1:25),
+             trControl= trControl, metric = "Accuracy", data=train)
 fit
 
 # best K - 
 
-knn_best <- knn3(pests~.,train, k=10)
+knn_best <- knn3(pests~.,train, k=4)
 best_pred <- predict(knn_best, test, type="class")
 best_te_error <- mean(best_pred != test$pests)
 

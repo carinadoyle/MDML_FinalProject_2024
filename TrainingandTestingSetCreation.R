@@ -25,4 +25,3 @@ nrow(test)
 
 str(resto)
 
-resto <- resto %>% select(-Community.Board, -Council.District)

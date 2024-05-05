@@ -22,7 +22,6 @@ te_error <- mean(pred_test!=test$pests)
 tr_error
 te_error
 
-accuracy <- c()
 accuracy <- append(accuracy, sum(pred_test == test$pests) / length(pred_test))
 
 plot_confusion_matrix(as_tibble((confusionMatrix(factor(pred_test), test$pests)$table)),

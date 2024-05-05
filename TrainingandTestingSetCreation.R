@@ -10,7 +10,7 @@ barplot(prop.table(table(resto$pests)),
         main = "Class Distribution")
 
 n <- nrow(resto)
-sample <- sample(n/1.20, replace=F) 
+sample <- sample(n/1.5, replace=F) 
 
 train <- resto[sample, ]
 test <- resto[-sample, ]
@@ -24,4 +24,3 @@ nrow(train)
 nrow(test)
 
 str(resto)
-

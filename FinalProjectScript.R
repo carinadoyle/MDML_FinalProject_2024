@@ -441,13 +441,3 @@ resto_scores <- resto_results %>% group_by(INSPECTION.MONTH) %>%
   summarise(average.score=mean(score, na.rm=T)) %>% arrange(desc(average.score))
 resto_scores
 
-2# let's keep the top 3 neighborhoods and graph them based on score
-
-resto_graph <- as.data.frame(resto_results)
-resto_graph_score <- resto_graph %>% select(nn=Neighborhood.Name, score=score, pred=resto_pred) %>% 
-  group_by(nn, score) %>% mutate(average.pred=mean(pred)) %>% filter(nn=="East Village"|
-                                                                       nn=="Chinatown"|
-                                                                       nn=="West Village")
-ggplot(data=resto_graph_score) + geom_line(mapping=aes(x=score, y=average.pred, color=nn)) 
-
-

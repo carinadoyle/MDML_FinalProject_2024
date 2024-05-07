@@ -18,6 +18,8 @@ library(cvms) # plot confusion matrices
 library(naivebayes) # naive bayes model
 library(ranger) # random forest model
 library(readxl) # read excel file
+library(rpart) # decision tree model
+library(rpart.plot) # plotting decision tree model
 
 #################################
 #                               #
@@ -55,7 +57,9 @@ nrow(neibrhd)
 resto <- resto %>% filter(CUISINE.DESCRIPTION!="Armenian",
                           CUISINE.DESCRIPTION!="Brazilian",
                           CUISINE.DESCRIPTION!="Indonesian",
-                          CUISINE.DESCRIPTION!="Pancakes/Waffles")
+                          CUISINE.DESCRIPTION!="Pancakes/Waffles",
+                          CUISINE.DESCRIPTION!="Afghan",
+                          CUISINE.DESCRIPTION!="German")
 
 #converts the 3 date columns to date format and extracts inspection year 
 resto <- resto %>% mutate(INSPECTION.DATE = as.Date(INSPECTION.DATE, format = "%m/%d/%Y")) %>%
@@ -141,7 +145,6 @@ resto <- left_join(resto, neibrhd, by = c('NTA' = 'NTA'))
 resto <- resto %>% drop_na(Neighborhood.Name)  #drop any rows that are missing Neighborhood data
 
 #If we want to filter to complete cases only (code below), we will still have almost 100K observations (99747):
-<<<<<<< HEAD
 # resto <- resto %>% filter(complete.cases(.))
 
 # it looks like we only have NAs in grade date, council distrinct, census tract, bin, and location.point1
@@ -159,7 +162,7 @@ resto <- resto %>% select(-Location.Point1)
 # inspection_month
 resto$INSPECTION.MONTH <- month(resto$INSPECTION.DATE)
 # building odd or even
-resto$BUILDING <- ifelse(resto$BUILDING%/%2==1, 1, 0)
+resto$BUILDING <- ifelse(as.numeric(resto$BUILDING)%%2==1, 1, 0)
 # inspection day of the week
 resto$INSPECTION.DAY <- weekdays(resto$INSPECTION.DATE)
 
@@ -202,7 +205,7 @@ resto$ZIPCODE <- factor(resto$ZIPCODE, levels=zip_list)
 resto_assess <- resto %>% filter(INSPECTION.YEAR==2023|INSPECTION.YEAR==2024) %>% select(-INSPECTION.YEAR)
 resto <- resto %>% filter(INSPECTION.YEAR!=2023 & INSPECTION.YEAR!=2024) %>% select(-INSPECTION.YEAR)
 
-resto <- resto %>% filter(complete.cases(.))
+resto <- resto %>% filter(complete.cases(.)) %>% filter(Neighborhood.Name!="park-cemetery-etc-Manhattan")
 
 #################################
 #                               #
@@ -236,12 +239,6 @@ X_test <- resto %>% select(-pests)
 log_model <- glm(pests~., data=train, family="binomial")
 summary(log_model)
 
-train_control <- trainControl(method = "cv", number = 10)
-# train the model on training set
-model <- train(pests ~ .,data = resto,trControl = train_control,
-               method = "glm",family=binomial())
-model
-
 pred_train <- predict(log_model, newdata=train, type="response")
 train_label <- ifelse(pred_train > 0.5, 1, 0)
 tr_error <- mean(train_label!=train$pests)
@@ -273,12 +270,6 @@ auc <- append(auc, auc(log_roc))
 nb_model <- naive_bayes(pests ~ ., train, usekernel = T, laplace=1) 
 summary(nb_model)
 
-train_control <- trainControl(method = "cv", number = 10)
-# train the model on training set
-model <- train(pests ~ .,data = train,trControl = train_control,
-               method = "naive_bayes",family=binomial())
-model
-
 pred_train <- predict(nb_model, newdata=train, type="class")
 tr_error <- mean(pred_train!=train$pests)
 
@@ -303,7 +294,21 @@ auc <- append(auc, auc(nb_ROCurve))
 #                               #
 #################################
 
-knn_best <- knn3(pests~.,train, k=4)
+k_seq <- seq(1,25, by=1)
+
+te_error<- c()
+
+for(i in seq_along(k_seq)){
+  knn_fit <-caret::knn3(pests~., train, k=k_seq[i])
+  knn_pred <- predict(knn_fit, test, type="class")
+  te_error[i] <- mean(knn_pred != test$pests)
+}
+
+df <- data.frame(k_seq, te_error)
+ggplot(data = df, mapping = aes(x=k_seq, y=te_error))+geom_line(col="red") +
+  geom_line()+xlab("k value")+ylab("Testing error")
+
+knn_best <- knn3(pests~.,train, k=23)
 best_pred <- predict(knn_best, test, type="class")
 best_te_error <- mean(best_pred != test$pests)
 
@@ -322,6 +327,24 @@ auc <- append(auc, auc(knn_ROCurve))
 #                               #
 #################################
 
+dt_model <- rpart(pests~., method="class", data = train)
+rpart.plot(dt_model)
+
+pred_exp_train <- predict(dt_model, train, type = "class")
+mean(pred_exp_train != train$pests)
+
+pred_exp_test <- predict(dt_model, test, type = "class")
+pred_test <- list(pred_exp_test)
+mean(pred_exp_test != test$pests)
+
+accuracy <- append(accuracy, sum(pred_exp_test == test$pests) / length(pred_exp_test))
+
+plot_confusion_matrix(as_tibble((confusionMatrix(factor(pred_exp_test), test$pests)$table)),
+                      target_col = "Reference", prediction_col = "Prediction", counts_col = "n")
+
+pred_exp_test_prob <- predict(dt_model, test, type = "prob")
+dt_ROCurve <- roc(test$pests, as.numeric(pred_exp_test_prob[,1]))
+auc <- append(auc, auc(dt_ROCurve))
 
 
 #################################
@@ -369,7 +392,12 @@ ggroc(list("Logistic Regression"=log_roc,"Naive Bayes"=nb_ROCurve,
 #                               #
 #################################
 
+unique(resto$INSPECTION.TYPE)
+unique(resto_assess$INSPECTION.TYPE)
+
 resto_assess <- resto_assess %>% filter(GRADE!="N")
+resto_assess <- resto_assess %>% filter(INSPECTION.TYPE!="Cycle Inspection / Second Compliance Inspection",
+                                        INSPECTION.TYPE!="Pre-permit (Non-operational) / Compliance Inspection")
 resto_assess <- resto_assess %>% filter(Neighborhood.Name!="park-cemetery-etc-Manhattan")
 resto_assess <- resto_assess %>% select(-pests)
 
@@ -380,10 +408,40 @@ resto_results <- cbind(resto_assess, resto_pred)
 # predictions for the neighborhoods with highest average probability of having pest violations
 
 resto_predictions <- resto_results %>% group_by(Neighborhood.Name) %>% 
-  summarise(average.probability=mean(resto_pred)) %>% arrange(desc(average.probability))
+  summarise(average.probability=mean(resto_pred, na.rm=T)) %>% arrange(desc(average.probability))
 resto_predictions
 
-# let's keep the top 3 neighborhoods and graph them based on score
+# average scores for each neighborhood
+
+resto_scores <- resto_results %>% group_by(Neighborhood.Name) %>% 
+  summarise(average.score=mean(score, na.rm=T)) %>% arrange(desc(average.score))
+resto_scores
+
+# predictions for the days of the week highest average probability of having pest violations
+
+resto_predictions <- resto_results %>% group_by(INSPECTION.DAY) %>% 
+  summarise(average.probability=mean(resto_pred, na.rm=T)) %>% arrange(desc(average.probability))
+resto_predictions
+
+# average scores for each day of the week
+
+resto_scores <- resto_results %>% group_by(INSPECTION.DAY) %>% 
+  summarise(average.score=mean(score, na.rm=T)) %>% arrange(desc(average.score))
+resto_scores
+
+# predictions for the month highest average probability of having pest violations
+
+resto_predictions <- resto_results %>% group_by(INSPECTION.MONTH) %>% 
+  summarise(average.probability=mean(resto_pred, na.rm=T)) %>% arrange(desc(average.probability))
+resto_predictions
+
+# average scores for each month
+
+resto_scores <- resto_results %>% group_by(INSPECTION.MONTH) %>% 
+  summarise(average.score=mean(score, na.rm=T)) %>% arrange(desc(average.score))
+resto_scores
+
+2# let's keep the top 3 neighborhoods and graph them based on score
 
 resto_graph <- as.data.frame(resto_results)
 resto_graph_score <- resto_graph %>% select(nn=Neighborhood.Name, score=score, pred=resto_pred) %>% 
@@ -392,15 +450,4 @@ resto_graph_score <- resto_graph %>% select(nn=Neighborhood.Name, score=score, p
                                                                        nn=="West Village")
 ggplot(data=resto_graph_score) + geom_line(mapping=aes(x=score, y=average.pred, color=nn)) 
 
-resto_graph <- as.data.frame(resto_results)
-resto_graph_gd <- resto_graph %>% select(nn=Neighborhood.Name, gd=GRADE.DAY, pred=resto_pred) %>% 
-  group_by(nn, gd) %>% mutate(average.pred=mean(pred)) %>% filter(nn=="East Village"|
-                                                                    nn=="Chinatown"|
-                                                                    nn=="West Village")
-ggplot(data=resto_graph_gd) + geom_bar(mapping=aes(x=gd, y=average.pred, color=nn)) 
 
-#################################
-#                               #
-#                               #
-#                               #
-#################################
